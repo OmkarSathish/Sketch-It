@@ -54,7 +54,7 @@ The image generation process involves:
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/OmkarSathish/Sketch-It.git
 cd sketch-to-image
 ```
 
