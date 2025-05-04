@@ -78,6 +78,7 @@ export default function Home() {
     });
   };
 
+  
   const handleDownloadImage = () => {
     if (!generatedImageUrl) {
        toast({
