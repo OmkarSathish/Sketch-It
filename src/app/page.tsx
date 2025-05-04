@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Eraser, Brush, Palette, Loader2, WandSparkles } from 'lucide-react';
+import { Eraser, Brush, Palette, Loader2, WandSparkles, Download } from 'lucide-react';
 import { sketchToImage, type SketchToImageInput } from '@/ai/flows/sketch-to-image';
 import { useToast } from "@/hooks/use-toast";
 
@@ -30,6 +30,7 @@ export default function Home() {
    const handleClearCanvas = () => {
     setClearCanvasTrigger(prev => prev + 1); // Increment to trigger useEffect in DrawingCanvas
     setGeneratedImageUrl(null); // Optionally clear the generated image too
+    setCurrentSketchDataUrl(''); // Clear the sketch data URL as well
    };
 
 
@@ -53,6 +54,7 @@ export default function Home() {
 
 
     startTransition(async () => {
+      setGeneratedImageUrl(null); // Clear previous image while generating new one
       try {
         const input: SketchToImageInput = {
           sketchDataUri: currentSketchDataUrl,
@@ -75,6 +77,30 @@ export default function Home() {
       }
     });
   };
+
+  const handleDownloadImage = () => {
+    if (!generatedImageUrl) {
+       toast({
+          title: "No Image to Download",
+          description: "Generate an image first before downloading.",
+          variant: "destructive",
+        });
+      return;
+    }
+
+    const link = document.createElement('a');
+    link.href = generatedImageUrl;
+    // Basic filename, could be enhanced with prompt or timestamp
+    link.download = `sketchai-generated-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+     toast({
+        title: "Download Started",
+        description: "Your generated image is downloading.",
+      });
+  };
+
 
   return (
     <div className="min-h-screen bg-secondary p-4 md:p-8 flex flex-col items-center">
@@ -148,7 +174,7 @@ export default function Home() {
             </div>
              <Button
                onClick={handleGenerateImage}
-               disabled={isGenerating || !currentSketchDataUrl || !prompt}
+               disabled={isGenerating || !currentSketchDataUrl || !prompt.trim()}
                className="w-full mt-4"
              >
                {isGenerating ? (
@@ -159,13 +185,22 @@ export default function Home() {
                Generate Image
              </Button>
 
-            <ImageDisplay
+             <ImageDisplay
               imageUrl={generatedImageUrl}
               isLoading={isGenerating}
               altText={`Generated image based on prompt: ${prompt}`}
               className="mt-4"
               placeholderHint="digital painting sketch"
              />
+             <Button
+                onClick={handleDownloadImage}
+                disabled={!generatedImageUrl || isGenerating}
+                variant="secondary"
+                className="w-full mt-2"
+             >
+                <Download className="mr-2" size={16} />
+                Download Image
+             </Button>
           </CardContent>
         </Card>
       </div>
