@@ -1,0 +1,1 @@
+import '@/ai/flows/sketch-to-image.ts';
